@@ -1,0 +1,104 @@
+<html>
+  <title>
+		Course Tickle
+	</title>
+		<link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link href="https://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+	 <style>
+    body, html {
+        height: 100%;
+        margin: 0;
+    }
+    </style>
+	<head>
+	    <div class="container">
+	   <h1>Course Tickle</h1>
+	   <h4>VCU Course Search and Opening Notifier</h3>
+        <div class="form-group">
+          <label>Enter Class CRN:</label>
+          <input type="text" name="crn" class="form-control" required = "true" id="crn">
+        </div>
+        <div id = "info">
+          
+        </div>
+        <button class="btn btn-default" onclick="sendCRN()">Go</button> 
+    </div>
+    <div class="container">
+    </div>
+	  <div class="modal fade" id="myModal" tabindex="-1" role="document" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">Sign up to be notified when a spot opens up!</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h5 id="subtitle"></h5>
+            <hr>
+            <form action="" method="post" id="myform">
+              <div class="form-group">
+                <label>Name:</label>
+                <input type="text" name="name" class="form-control" required = "true" id="name">
+              </div>
+              <div class="form-group">
+                <label for="email">Email address:</label>
+                <input type="email" name = "email" class="form-control" required = "true" id="email">
+              </div>
+              <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="text" id = "phone" name = "phone" class="form-control bfh-phone" data-format="+1 (ddd) ddd-dddd">
+              </div>
+              <div class="form-group">
+                <label>Date of Birth:</label>
+                <input type="date" name = "dob" class="form-control" required = "true" id="dob">
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </head>
+  <script>
+  	var options = {
+			transports: [ 'polling' ]
+		};
+		var socket = io.connect("http://waitlist-rsbballguy.c9users.io", options);
+    //
+    function sendCRN(){
+      var val = $("#crn").val()
+      console.log(val)
+      socket.emit("sendCRN", val);
+    }
+    socket.on("getInfo", function(data){
+      $("#info").text(data);
+      console.log(data);
+    })
+    socket.on("noSeats", function(data){
+      $('#subtitle').text(data);
+      $('#myModal').modal();
+    })
+    $('#myform').submit(function () {
+     sendForm();
+     return false;
+    });
+    function sendForm(){
+        console.log("asdjfaldsjfkldsajfkl") 
+      $.ajax({
+                type: 'post',
+                url: 'http://waitlist-rsbballguy.c9users.io/add',
+                data: $('#myform').serialize()
+      })
+       $('.modal-body').fadeOut();
+       var temp = $('#phone').val();
+       var str = "Done! You will receive a text at "+temp+" when a seat opens.";
+       $('.modal-title').text(str)
+    }
+  </script>
+</html>
